@@ -12,7 +12,9 @@ from app.models.schemas import (
     JobStatusResponse,
     StageStatus,
 )
+from app.services.collect import CollectError, collect_reviews
 from app.services import store
+from app.services.url_parser import InvalidAppUrlError, extract_app_id
 
 STAGE_DEFS: list[tuple[str, str]] = [
     ("scope", "Determine analysis scope"),
@@ -36,43 +38,40 @@ def build_initial_stages() -> list[JobStage]:
     ]
 
 
-def _fake_artifacts(app_url: str, goal: str | None) -> dict:
+def _mark_stage(
+    stages: list[JobStage],
+    index: int,
+    *,
+    status: StageStatus,
+    message: str,
+    started: bool = False,
+    finished: bool = False,
+) -> None:
+    stage = stages[index].model_copy(deep=True)
+    stage.status = status
+    stage.message = message
+    if started:
+        stage.started_at = _utcnow()
+    if finished:
+        stage.finished_at = _utcnow()
+    stages[index] = stage
+
+
+def _placeholder_later_artifacts() -> dict:
     return {
-        "scope": {
-            "focus": goal or "general",
-            "note": "Day1 fake scope — replace with real scoping on later days",
-        },
-        "reviews_raw": [
-            {
-                "id": "r1",
-                "rating": 1,
-                "title": "Fake review",
-                "content": "Placeholder raw review for UI wiring",
-            }
-        ],
-        "reviews_cleaned": [
-            {
-                "id": "r1",
-                "rating": 1,
-                "title": "Fake review",
-                "content": "Placeholder cleaned review for UI wiring",
-            }
-        ],
         "findings": [],
         "prd": {},
         "testcases": [],
         "validation": {
             "ok": True,
-            "notes": ["Day1 placeholder validation"],
-        },
-        "meta": {
-            "app_url": app_url,
-            "pipeline": "fake",
+            "notes": [
+                "Day2: collect is real; analyze/plan/test generation still placeholders."
+            ],
         },
     }
 
 
-def run_fake_pipeline(job_id: str) -> None:
+def run_pipeline(job_id: str) -> None:
     try:
         job = store.get_job(job_id)
         if job is None:
@@ -80,23 +79,140 @@ def run_fake_pipeline(job_id: str) -> None:
 
         store.update_job(job_id, status=JobStatus.running, updated_at=_utcnow())
         stages = [stage.model_copy(deep=True) for stage in job.stages]
+        artifacts: dict = {
+            "scope": {},
+            "reviews_raw": [],
+            "reviews_cleaned": [],
+            "collection_meta": {},
+            **_placeholder_later_artifacts(),
+            "meta": {
+                "app_url": job.app_url,
+                "pipeline": "day2-collect-real",
+            },
+        }
 
-        for index, stage in enumerate(stages):
-            stage.status = StageStatus.running
-            stage.message = f"Running {stage.name.lower()}..."
-            stage.started_at = _utcnow()
-            stages[index] = stage
+        # 1) scope
+        _mark_stage(
+            stages,
+            0,
+            status=StageStatus.running,
+            message="Determining analysis scope...",
+            started=True,
+        )
+        store.update_job(job_id, stages=stages, updated_at=_utcnow())
+
+        app_id = extract_app_id(job.app_url)
+        artifacts["scope"] = {
+            "app_id": app_id,
+            "focus": job.goal or "general",
+            "source": job.source,
+            "storefront": "us",
+            "note": "Scope derived from user goal and available collection mode.",
+        }
+        _mark_stage(
+            stages,
+            0,
+            status=StageStatus.done,
+            message=f"Scoped app_id={app_id}, focus={artifacts['scope']['focus']}",
+            finished=True,
+        )
+        store.update_job(
+            job_id, stages=stages, artifacts=artifacts, updated_at=_utcnow()
+        )
+
+        # 2) collect (real)
+        _mark_stage(
+            stages,
+            1,
+            status=StageStatus.running,
+            message=f"Collecting reviews via source={job.source}...",
+            started=True,
+        )
+        store.update_job(job_id, stages=stages, updated_at=_utcnow())
+
+        collected = collect_reviews(
+            app_url=job.app_url,
+            source=job.source,
+            import_path=job.import_path,
+            max_pages=job.max_pages,
+            refresh_sample_on_live=True,
+        )
+        artifacts["reviews_raw"] = collected["reviews"]
+        artifacts["collection_meta"] = collected["collection_meta"]
+        artifacts["scope"]["app_id"] = collected["app_id"]
+
+        _mark_stage(
+            stages,
+            1,
+            status=StageStatus.done,
+            message=(
+                f"Collected {collected['collection_meta'].get('count', 0)} reviews "
+                f"({collected['collection_meta'].get('source')})"
+            ),
+            finished=True,
+        )
+        store.update_job(
+            job_id, stages=stages, artifacts=artifacts, updated_at=_utcnow()
+        )
+
+        # 3) clean — Day3 will replace; for now shallow copy + basic empty filter
+        _mark_stage(
+            stages,
+            2,
+            status=StageStatus.running,
+            message="Applying lightweight cleaning placeholder...",
+            started=True,
+        )
+        store.update_job(job_id, stages=stages, updated_at=_utcnow())
+
+        cleaned = []
+        removed_empty = 0
+        for review in artifacts["reviews_raw"]:
+            content = (review.get("content") or "").strip()
+            title = (review.get("title") or "").strip()
+            if not content and not title:
+                removed_empty += 1
+                continue
+            cleaned.append(review)
+        artifacts["reviews_cleaned"] = cleaned
+        artifacts["cleaning_report"] = {
+            "input_count": len(artifacts["reviews_raw"]),
+            "output_count": len(cleaned),
+            "removed_empty": removed_empty,
+            "note": "Day2 placeholder cleaning only removes empty reviews. Full dedupe/normalization comes in Day3.",
+        }
+        _mark_stage(
+            stages,
+            2,
+            status=StageStatus.done,
+            message=f"Cleaned to {len(cleaned)} reviews (placeholder)",
+            finished=True,
+        )
+        store.update_job(
+            job_id, stages=stages, artifacts=artifacts, updated_at=_utcnow()
+        )
+
+        # 4-7 remaining stages still placeholder
+        for index in range(3, len(stages)):
+            stage = stages[index]
+            _mark_stage(
+                stages,
+                index,
+                status=StageStatus.running,
+                message=f"Running {stage.name.lower()} (placeholder)...",
+                started=True,
+            )
+            store.update_job(job_id, stages=stages, updated_at=_utcnow())
+            time.sleep(0.35)
+            _mark_stage(
+                stages,
+                index,
+                status=StageStatus.done,
+                message=f"Completed {stage.name.lower()} (placeholder)",
+                finished=True,
+            )
             store.update_job(job_id, stages=stages, updated_at=_utcnow())
 
-            time.sleep(0.9)
-
-            stage.status = StageStatus.done
-            stage.message = f"Completed {stage.name.lower()} (fake)"
-            stage.finished_at = _utcnow()
-            stages[index] = stage
-            store.update_job(job_id, stages=stages, updated_at=_utcnow())
-
-        artifacts = _fake_artifacts(job.app_url, job.goal)
         store.update_job(
             job_id,
             status=JobStatus.succeeded,
@@ -105,7 +221,7 @@ def run_fake_pipeline(job_id: str) -> None:
             error=None,
             updated_at=_utcnow(),
         )
-    except Exception as exc:  # noqa: BLE001 - surface any pipeline failure to job state
+    except (CollectError, InvalidAppUrlError, Exception) as exc:  # noqa: BLE001
         job = store.get_job(job_id)
         stages = []
         if job is not None:
@@ -134,6 +250,8 @@ def create_and_start_job(req: AnalyzeRequest) -> str:
         app_url=req.app_url,
         goal=req.goal,
         source=req.source,
+        import_path=req.import_path,
+        max_pages=req.max_pages,
         stages=build_initial_stages(),
         artifacts={},
         error=None,
@@ -142,6 +260,6 @@ def create_and_start_job(req: AnalyzeRequest) -> str:
     )
     store.create_job(job)
 
-    worker = Thread(target=run_fake_pipeline, args=(job_id,), daemon=True)
+    worker = Thread(target=run_pipeline, args=(job_id,), daemon=True)
     worker.start()
     return job_id
