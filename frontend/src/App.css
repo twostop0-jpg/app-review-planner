@@ -1,0 +1,152 @@
+:root {
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  line-height: 1.5;
+  color: #1f2937;
+  background: #f3f4f6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.page {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 32px 20px 48px;
+}
+
+.header h1 {
+  margin: 0 0 8px;
+  font-size: 1.75rem;
+}
+
+.subtitle {
+  margin: 0;
+  color: #6b7280;
+}
+
+.panel {
+  margin-top: 20px;
+  padding: 16px 18px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.input {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.button {
+  margin-top: 4px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #111827;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.meta {
+  margin-top: 12px;
+  color: #4b5563;
+  font-size: 0.92rem;
+}
+
+.error {
+  margin-top: 12px;
+  color: #b91c1c;
+}
+
+.muted {
+  color: #6b7280;
+}
+
+.stage-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+}
+
+.stage-item {
+  padding: 10px 0;
+  border-top: 1px solid #f3f4f6;
+}
+
+.stage-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.stage-msg {
+  margin: 6px 0 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.status {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  background: #e5e7eb;
+}
+
+.status-running {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status-done,
+.status-succeeded {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status-error,
+.status-failed {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.status-queued,
+.status-pending {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.code {
+  margin: 0;
+  padding: 12px;
+  overflow: auto;
+  background: #0b1020;
+  color: #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
