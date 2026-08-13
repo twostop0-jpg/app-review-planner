@@ -21,6 +21,24 @@ class AnalyzeRequest(BaseModel):
         examples=["subscription conversion"],
     )
     source: Literal["live", "sample", "import"] = "live"
+    import_path: str | None = Field(
+        default=None,
+        description="Path to JSON/CSV when source=import (repo-relative or absolute)",
+    )
+    max_pages: int = Field(default=5, ge=1, le=10)
+
+
+class Review(BaseModel):
+    id: str
+    app_id: str
+    rating: int | None = None
+    title: str = ""
+    content: str = ""
+    author: str = ""
+    date: str | None = None
+    version: str | None = None
+    country: str = "us"
+    source: Literal["live", "sample", "import"] = "live"
 
 
 class StageStatus(str, Enum):
@@ -57,8 +75,24 @@ class JobStatusResponse(BaseModel):
     app_url: str
     goal: str | None = None
     source: Literal["live", "sample", "import"] = "live"
+    import_path: str | None = None
+    max_pages: int = 5
     stages: list[JobStage]
     artifacts: dict[str, Any] = Field(default_factory=dict)
     error: str | None = None
     created_at: datetime
     updated_at: datetime
+
+
+class CollectPreviewRequest(BaseModel):
+    app_url: str
+    source: Literal["live", "sample", "import"] = "live"
+    import_path: str | None = None
+    max_pages: int = Field(default=3, ge=1, le=10)
+
+
+class CollectPreviewResponse(BaseModel):
+    app_id: str
+    count: int
+    collection_meta: dict[str, Any]
+    reviews: list[Review]
