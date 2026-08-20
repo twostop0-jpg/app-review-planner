@@ -109,6 +109,7 @@ This project was built with assistance from Cursor (AI coding assistant). Scaffo
 
 ## Docs
 
+- [`docs/user-guide.md`](./docs/user-guide.md) — 产品功能与使用教程（推荐先看）
 - [`docs/architecture.md`](./docs/architecture.md)
 - [`docs/data-collection.md`](./docs/data-collection.md)
 - [`docs/cleaning.md`](./docs/cleaning.md)
