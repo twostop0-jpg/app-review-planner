@@ -12,9 +12,11 @@ from app.models.schemas import (
     JobStatusResponse,
     StageStatus,
 )
+from app.services.analyze import analyze_reviews
 from app.services.clean import clean_reviews
 from app.services.collect import CollectError, collect_reviews
 from app.services import store
+from app.services.moonshot_client import MoonshotError
 from app.services.url_parser import InvalidAppUrlError, extract_app_id
 
 STAGE_DEFS: list[tuple[str, str]] = [
@@ -61,12 +63,15 @@ def _mark_stage(
 def _placeholder_later_artifacts() -> dict:
     return {
         "findings": [],
+        "analysis_stats": {},
+        "analysis_notes": "",
+        "analysis_validation": {},
         "prd": {},
         "testcases": [],
         "validation": {
             "ok": True,
             "notes": [
-                "Day3: collect+clean are real; analyze/plan/test generation still placeholders."
+                "Day4: collect+clean+analyze are real; PRD/testcases still placeholders."
             ],
         },
     }
@@ -88,7 +93,7 @@ def run_pipeline(job_id: str) -> None:
             **_placeholder_later_artifacts(),
             "meta": {
                 "app_url": job.app_url,
-                "pipeline": "day3-collect-clean",
+                "pipeline": "day4-collect-clean-analyze",
             },
         }
 
@@ -185,8 +190,39 @@ def run_pipeline(job_id: str) -> None:
             job_id, stages=stages, artifacts=artifacts, updated_at=_utcnow()
         )
 
-        # 4-7 remaining stages still placeholder
-        for index in range(3, len(stages)):
+        # 4) analyze (Moonshot + deterministic stats + evidence validation)
+        _mark_stage(
+            stages,
+            3,
+            status=StageStatus.running,
+            message="Analyzing reviews with Moonshot (evidence-grounded)...",
+            started=True,
+        )
+        store.update_job(job_id, stages=stages, updated_at=_utcnow())
+
+        analysis = analyze_reviews(artifacts["reviews_cleaned"], goal=job.goal)
+        artifacts["findings"] = analysis["findings"]
+        artifacts["analysis_stats"] = analysis["stats"]
+        artifacts["analysis_notes"] = analysis["analysis_notes"]
+        artifacts["analysis_validation"] = analysis["validation"]
+        artifacts["analysis_model"] = analysis["model"]
+
+        _mark_stage(
+            stages,
+            3,
+            status=StageStatus.done,
+            message=(
+                f"Generated {len(analysis['findings'])} findings "
+                f"(rejected {analysis['validation'].get('rejected', 0)} unsupported)"
+            ),
+            finished=True,
+        )
+        store.update_job(
+            job_id, stages=stages, artifacts=artifacts, updated_at=_utcnow()
+        )
+
+        # 5-7 remaining stages still placeholder
+        for index in range(4, len(stages)):
             stage = stages[index]
             _mark_stage(
                 stages,
@@ -214,7 +250,7 @@ def run_pipeline(job_id: str) -> None:
             error=None,
             updated_at=_utcnow(),
         )
-    except (CollectError, InvalidAppUrlError, Exception) as exc:  # noqa: BLE001
+    except (CollectError, InvalidAppUrlError, MoonshotError, Exception) as exc:  # noqa: BLE001
         job = store.get_job(job_id)
         stages = []
         if job is not None:
