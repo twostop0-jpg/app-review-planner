@@ -41,6 +41,21 @@ class Review(BaseModel):
     source: Literal["live", "sample", "import"] = "live"
 
 
+class Finding(BaseModel):
+    finding_id: str
+    title: str
+    summary: str = ""
+    severity: Literal["high", "medium", "low"] = "medium"
+    evidence_review_ids: list[str] = Field(default_factory=list)
+    evidence_excerpts: list[str] = Field(default_factory=list)
+    support_count: int = 0
+    confidence: float = 0.0
+    conflicts: list[str] = Field(default_factory=list)
+    uncertainty_notes: str = ""
+    assumption: bool = False
+    origin: Literal["model", "stat", "rule"] = "model"
+
+
 class StageStatus(str, Enum):
     pending = "pending"
     running = "running"
