@@ -17,6 +17,7 @@ from app.services.clean import clean_reviews
 from app.services.collect import CollectError, collect_reviews
 from app.services import store
 from app.services.moonshot_client import MoonshotError
+from app.services.plan import plan_prd
 from app.services.url_parser import InvalidAppUrlError, extract_app_id
 
 STAGE_DEFS: list[tuple[str, str]] = [
@@ -221,8 +222,43 @@ def run_pipeline(job_id: str) -> None:
             job_id, stages=stages, artifacts=artifacts, updated_at=_utcnow()
         )
 
-        # 5-7 remaining stages still placeholder
-        for index in range(4, len(stages)):
+        # 5) plan (Moonshot PRD + version split + finding/review linking)
+        _mark_stage(
+            stages,
+            4,
+            status=StageStatus.running,
+            message="Creating PRD and version plan with Moonshot...",
+            started=True,
+        )
+        store.update_job(job_id, stages=stages, updated_at=_utcnow())
+
+        planned = plan_prd(
+            artifacts["findings"],
+            goal=job.goal,
+            stats=artifacts.get("analysis_stats"),
+        )
+        artifacts["prd"] = planned["prd"]
+        artifacts["planning_notes"] = planned["planning_notes"]
+        artifacts["planning_validation"] = planned["validation"]
+        artifacts["planning_model"] = planned["model"]
+
+        req_count = len(planned["prd"].get("requirements") or [])
+        _mark_stage(
+            stages,
+            4,
+            status=StageStatus.done,
+            message=(
+                f"Created PRD with {req_count} requirements "
+                f"(rejected {planned['validation'].get('rejected', 0)} unsupported)"
+            ),
+            finished=True,
+        )
+        store.update_job(
+            job_id, stages=stages, artifacts=artifacts, updated_at=_utcnow()
+        )
+
+        # 6-7 remaining stages still placeholder (Day6)
+        for index in range(5, len(stages)):
             stage = stages[index]
             _mark_stage(
                 stages,

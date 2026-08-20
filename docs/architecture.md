@@ -20,3 +20,9 @@ Scaffold: FastAPI job API + fake multi-stage pipeline + React polling UI.
 - Analyze stage: deterministic stats + Moonshot findings + evidence validation
 - Docs: `docs/ai-design.md`
 - Requires `MOONSHOT_API_KEY` in `backend/.env`
+
+## Day 5
+- `plan.py` + `prompts/prd.py` + `Requirement` schema
+- Plan stage: Moonshot PRD + version split (`vNext-1` / `vNext-2` / `Research`) + finding/review link validation
+- Docs: `docs/prd-planning.md`
+- testcases / validate remain placeholders until Day6

@@ -56,6 +56,20 @@ class Finding(BaseModel):
     origin: Literal["model", "stat", "rule"] = "model"
 
 
+class Requirement(BaseModel):
+    req_id: str
+    title: str
+    description: str = ""
+    user_problem: str = ""
+    priority: Literal["P0", "P1", "P2"] = "P1"
+    version: str = "vNext-1"
+    linked_finding_ids: list[str] = Field(default_factory=list)
+    linked_review_ids: list[str] = Field(default_factory=list)
+    acceptance_criteria: list[str] = Field(default_factory=list)
+    non_goals: list[str] = Field(default_factory=list)
+    origin: Literal["model", "rule"] = "model"
+
+
 class StageStatus(str, Enum):
     pending = "pending"
     running = "running"

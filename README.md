@@ -8,9 +8,9 @@ Runnable tool for App Store review analysis → findings → PRD → test cases.
 
 - Backend: FastAPI (Python)
 - Frontend: React (Vite)
-- LLM: Moonshot (Day4+ analyze stage)
+- LLM: Moonshot (Day4+ analyze / Day5+ plan)
 
-## Current status (Day 4)
+## Current status (Day 5)
 
 Available now:
 
@@ -19,14 +19,15 @@ Available now:
 - Real US review collection (`live` / `sample` / `import`)
 - Deterministic cleaning + cleaning report
 - **Moonshot evidence-grounded findings** (`artifacts.findings`)
-- PRD / testcases still placeholders
+- **Moonshot PRD + version plan** (`artifacts.prd`) with finding/review links
+- testcases / validate still placeholders (Day6)
 
 ## Configure environment
 
 ```powershell
 cd backend
 copy .env.example .env
-# Required for Day4+ analyze stage:
+# Required for Day4+ analyze/plan stages:
 # set MOONSHOT_API_KEY=your_key_here
 ```
 
