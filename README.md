@@ -111,8 +111,9 @@ This project was built with assistance from Cursor (AI coding assistant). Scaffo
 
 ## Docs
 
-- [`docs/project-delivery.md`](./docs/project-delivery.md) — 项目产出总文档
-- [`docs/submission/`](./docs/submission/) — **分阶段提交材料（01–06）**
+- [`docs/项目总产物-重新提交.md`](./docs/项目总产物-重新提交.md) — **总项目产物（重新提交，自包含证据链）**
+- [`docs/project-delivery.md`](./docs/project-delivery.md) — 项目产出总文档（旧版）
+- [`docs/submission/`](./docs/submission/) — 分阶段材料（平台分阶段提交时用）
 - [`docs/user-guide.md`](./docs/user-guide.md) — product guide (Chinese)
 - [`docs/architecture.md`](./docs/architecture.md)
 - [`docs/data-collection.md`](./docs/data-collection.md)
