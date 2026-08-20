@@ -111,6 +111,7 @@ This project was built with assistance from Cursor (AI coding assistant). Scaffo
 
 ## Docs
 
+- [`docs/project-delivery.md`](./docs/project-delivery.md) — **项目产出文档（需求/方案/接口/实现与自测）**
 - [`docs/user-guide.md`](./docs/user-guide.md) — product guide (Chinese)
 - [`docs/architecture.md`](./docs/architecture.md)
 - [`docs/data-collection.md`](./docs/data-collection.md)
