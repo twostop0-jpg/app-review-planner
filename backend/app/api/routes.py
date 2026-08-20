@@ -1,5 +1,9 @@
 from fastapi import APIRouter, HTTPException
 
+from typing import Any
+
+from pydantic import BaseModel, Field
+
 from app.models.schemas import (
     AnalyzeRequest,
     CollectPreviewRequest,
@@ -8,9 +12,20 @@ from app.models.schemas import (
     JobStatusResponse,
     Review,
 )
+from app.services.clean import clean_reviews
 from app.services.collect import CollectError, collect_reviews
 from app.services.pipeline import create_and_start_job
 from app.services.store import get_job
+
+
+class CleanPreviewRequest(BaseModel):
+    reviews: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class CleanPreviewResponse(BaseModel):
+    count: int
+    cleaning_report: dict[str, Any]
+    reviews_cleaned: list[Review]
 
 router = APIRouter()
 
@@ -53,4 +68,15 @@ def preview_collect(req: CollectPreviewRequest) -> CollectPreviewResponse:
         count=len(reviews),
         collection_meta=result["collection_meta"],
         reviews=reviews,
+    )
+
+
+@router.post("/api/clean/preview", response_model=CleanPreviewResponse)
+def preview_clean(req: CleanPreviewRequest) -> CleanPreviewResponse:
+    result = clean_reviews(req.reviews)
+    cleaned = [Review.model_validate(item) for item in result["reviews_cleaned"]]
+    return CleanPreviewResponse(
+        count=len(cleaned),
+        cleaning_report=result["cleaning_report"],
+        reviews_cleaned=cleaned,
     )

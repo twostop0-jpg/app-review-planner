@@ -12,6 +12,7 @@ from app.models.schemas import (
     JobStatusResponse,
     StageStatus,
 )
+from app.services.clean import clean_reviews
 from app.services.collect import CollectError, collect_reviews
 from app.services import store
 from app.services.url_parser import InvalidAppUrlError, extract_app_id
@@ -65,7 +66,7 @@ def _placeholder_later_artifacts() -> dict:
         "validation": {
             "ok": True,
             "notes": [
-                "Day2: collect is real; analyze/plan/test generation still placeholders."
+                "Day3: collect+clean are real; analyze/plan/test generation still placeholders."
             ],
         },
     }
@@ -87,7 +88,7 @@ def run_pipeline(job_id: str) -> None:
             **_placeholder_later_artifacts(),
             "meta": {
                 "app_url": job.app_url,
-                "pipeline": "day2-collect-real",
+                "pipeline": "day3-collect-clean",
             },
         }
 
@@ -155,37 +156,29 @@ def run_pipeline(job_id: str) -> None:
             job_id, stages=stages, artifacts=artifacts, updated_at=_utcnow()
         )
 
-        # 3) clean — Day3 will replace; for now shallow copy + basic empty filter
+        # 3) clean (deterministic rules)
         _mark_stage(
             stages,
             2,
             status=StageStatus.running,
-            message="Applying lightweight cleaning placeholder...",
+            message="Cleaning, normalizing, and deduplicating reviews...",
             started=True,
         )
         store.update_job(job_id, stages=stages, updated_at=_utcnow())
 
-        cleaned = []
-        removed_empty = 0
-        for review in artifacts["reviews_raw"]:
-            content = (review.get("content") or "").strip()
-            title = (review.get("title") or "").strip()
-            if not content and not title:
-                removed_empty += 1
-                continue
-            cleaned.append(review)
-        artifacts["reviews_cleaned"] = cleaned
-        artifacts["cleaning_report"] = {
-            "input_count": len(artifacts["reviews_raw"]),
-            "output_count": len(cleaned),
-            "removed_empty": removed_empty,
-            "note": "Day2 placeholder cleaning only removes empty reviews. Full dedupe/normalization comes in Day3.",
-        }
+        cleaned_result = clean_reviews(artifacts["reviews_raw"])
+        artifacts["reviews_cleaned"] = cleaned_result["reviews_cleaned"]
+        artifacts["cleaning_report"] = cleaned_result["cleaning_report"]
+        report = cleaned_result["cleaning_report"]
         _mark_stage(
             stages,
             2,
             status=StageStatus.done,
-            message=f"Cleaned to {len(cleaned)} reviews (placeholder)",
+            message=(
+                f"Cleaned {report['input_count']} → {report['output_count']} "
+                f"(dup_id={report['removed_duplicate_id']}, "
+                f"dup_content={report['removed_duplicate_content']})"
+            ),
             finished=True,
         )
         store.update_job(
