@@ -14,7 +14,7 @@ body {
 }
 
 .page {
-  max-width: 880px;
+  max-width: 920px;
   margin: 0 auto;
   padding: 32px 20px 48px;
 }
@@ -37,6 +37,22 @@ body {
   border-radius: 10px;
 }
 
+.panel h2 {
+  margin: 0 0 10px;
+  font-size: 1.15rem;
+}
+
+.subhead {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+
+.tiny-head {
+  margin: 0 0 6px;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
 .label {
   display: block;
   margin-bottom: 12px;
@@ -51,6 +67,7 @@ body {
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font: inherit;
+  background: #fff;
 }
 
 .button {
@@ -64,6 +81,14 @@ body {
   cursor: pointer;
 }
 
+.button.ghost {
+  background: #fff;
+  color: #111827;
+  border: 1px solid #d1d5db;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
 .button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -75,6 +100,12 @@ body {
   font-size: 0.92rem;
 }
 
+.meta-line {
+  margin: 4px 0 0;
+  color: #6b7280;
+  font-size: 0.88rem;
+}
+
 .error {
   margin-top: 12px;
   color: #b91c1c;
@@ -84,28 +115,59 @@ body {
   color: #6b7280;
 }
 
-.stage-list {
+.stage-list,
+.result-list,
+.simple-list {
   list-style: none;
   padding: 0;
   margin: 12px 0 0;
 }
 
-.stage-item {
+.simple-list {
+  list-style: disc;
+  padding-left: 18px;
+}
+
+.stage-item,
+.result-item {
   padding: 10px 0;
   border-top: 1px solid #f3f4f6;
 }
 
-.stage-head {
+.stage-head,
+.result-head {
   display: flex;
   justify-content: space-between;
   gap: 12px;
   align-items: center;
 }
 
-.stage-msg {
+.stage-msg,
+.result-body {
   margin: 6px 0 0;
-  color: #6b7280;
+  color: #4b5563;
+  font-size: 0.92rem;
+}
+
+.steps {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: #4b5563;
   font-size: 0.9rem;
+}
+
+.block {
+  margin-top: 8px;
+}
+
+.pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background: #f3f4f6;
+  color: #374151;
+  white-space: nowrap;
 }
 
 .status {
@@ -145,8 +207,26 @@ body {
   margin: 0;
   padding: 12px;
   overflow: auto;
+  max-height: 480px;
   background: #0b1020;
   color: #e5e7eb;
   border-radius: 8px;
   font-size: 0.85rem;
+}
+
+.code.small {
+  max-height: 240px;
+  margin-top: 8px;
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 20px 14px 40px;
+  }
+
+  .stage-head,
+  .result-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

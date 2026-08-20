@@ -1,6 +1,6 @@
 # App Review Planner
 
-Runnable tool for App Store review analysis → findings → PRD → test cases.
+Runnable tool for App Store review analysis → findings → PRD → test cases → traceability check.
 
 > Assessment prompt (original): see [`ASSESSMENT.md`](./ASSESSMENT.md).
 
@@ -10,50 +10,93 @@ Runnable tool for App Store review analysis → findings → PRD → test cases.
 - Frontend: React (Vite)
 - LLM: Moonshot (analyze / plan / testcases)
 
-## Current status (Day 6)
+## Current status (Day 7 — submission ready)
 
-Available now:
-
-- Create analysis jobs via API
-- React page to start a job and poll status
-- Real US review collection (`live` / `sample` / `import`)
-- Deterministic cleaning + cleaning report
-- **Moonshot evidence-grounded findings** (`artifacts.findings`)
-- **Moonshot PRD + version plan** (`artifacts.prd`) with finding/review links
-- **Moonshot test cases** (`artifacts.testcases`) linked to requirements/reviews
-- **Traceability validation** (`artifacts.validation`) for the full chain
+- Full pipeline: scope → collect → clean → analyze → plan → testcases → validate
+- UI shows stages plus structured findings / PRD / test cases / traceability
+- Data sources: `live` (US feeds), `sample` (cached offline), `import` (JSON/CSV)
+- Model stages use evidence validation + rule fallbacks when needed
 
 ## Configure environment
 
-```powershell
-cd backend
+```bat
+cd /d d:\yuanxue\backend
 copy .env.example .env
-# Required for Day4+ analyze/plan/testcases stages:
-# set MOONSHOT_API_KEY=your_key_here
 ```
+
+Edit `backend/.env` and set:
+
+```text
+MOONSHOT_API_KEY=your_key_here
+```
+
+Do not commit secrets.
 
 ## Run backend
 
-```powershell
-cd backend
+```bat
+cd /d d:\yuanxue\backend
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+.\.venv\Scripts\activate.bat
 pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
+uvicorn app.main:app --reload --port 8001
 ```
 
-Health check: http://127.0.0.1:8000/health  
-API docs: http://127.0.0.1:8000/docs
+- Health: http://127.0.0.1:8001/health
+- Swagger: http://127.0.0.1:8001/docs
+
+> On Windows, if port 8000 fails with WinError 10013, keep using **8001**.
 
 ## Run frontend
 
-```powershell
-cd frontend
+```bat
+cd /d d:\yuanxue\frontend
 npm install
 npm run dev
 ```
 
-Open the URL Vite prints (usually http://localhost:5173).
+Open the Vite URL (usually http://localhost:5173).
+
+Default API base is `http://127.0.0.1:8001`. Override with:
+
+```bat
+set VITE_API_BASE=http://127.0.0.1:8001
+```
+
+## Recommended demo (offline)
+
+In the UI (or Swagger `POST /api/jobs`):
+
+```json
+{
+  "app_url": "https://apps.apple.com/us/app/workout-for-women-home-gym/id839285684",
+  "goal": "improve retention and billing clarity",
+  "source": "sample",
+  "import_path": null
+}
+```
+
+Then poll `GET /api/jobs/{job_id}` until `succeeded`.
+
+Expect:
+
+- `artifacts.findings`
+- `artifacts.prd.requirements`
+- `artifacts.testcases`
+- `artifacts.validation.ok == true`
+
+## Import example
+
+```json
+{
+  "app_url": "https://apps.apple.com/us/app/id839285684",
+  "goal": "billing clarity",
+  "source": "import",
+  "import_path": "data/imports/example_reviews.csv"
+}
+```
+
+Import formats are documented in [`docs/data-collection.md`](./docs/data-collection.md).
 
 ## Example App Store URL
 
@@ -63,7 +106,7 @@ https://apps.apple.com/us/app/workout-for-women-home-gym/id839285684
 
 ## AI-assisted development disclosure
 
-This repository is being built with assistance from an AI coding assistant (Cursor). Day1 scaffold code was generated and then reviewed for structure and local runnability. Core product logic (collection strategy, evidence validation, prompts, and traceability rules) will be designed and verified by the candidate in later commits. A final disclosure section will be updated before submission.
+This project was built with assistance from Cursor (AI coding assistant). Scaffolding, iteration, and mechanical wiring were accelerated by the assistant. Pipeline design choices, evidence validation rules, prompt constraints, fallbacks, and local verification were reviewed and driven by the candidate. Runtime semantic analysis uses Moonshot via the application's own prompts and validators; using an AI coding assistant alone does not satisfy the assessment AI requirements.
 
 ## Docs
 

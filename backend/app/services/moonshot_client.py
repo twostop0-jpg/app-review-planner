@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from typing import Any
 
 import httpx
@@ -98,6 +99,22 @@ class MoonshotClient:
             # Retry once without response_format if the model rejects it.
             if force_json and response.status_code in {400, 422}:
                 return self.chat(messages, temperature=temperature, force_json=False)
+            if response.status_code == 429:
+                # Organization RPM limits are common; brief backoff then one retry.
+                time.sleep(22)
+                with httpx.Client(timeout=self.timeout) as client:
+                    retry = client.post(url, headers=headers, json=payload)
+                if retry.status_code < 400:
+                    data = retry.json()
+                    try:
+                        return data["choices"][0]["message"]["content"]
+                    except (KeyError, IndexError, TypeError) as exc:
+                        raise MoonshotError(
+                            f"Unexpected Moonshot response shape: {data}"
+                        ) from exc
+                raise MoonshotError(
+                    f"Moonshot API error {retry.status_code}: {retry.text[:500]}"
+                )
             raise MoonshotError(
                 f"Moonshot API error {response.status_code}: {response.text[:500]}"
             )

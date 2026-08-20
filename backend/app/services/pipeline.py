@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 import uuid
 from datetime import datetime, timezone
 from threading import Thread
@@ -223,6 +224,9 @@ def run_pipeline(job_id: str) -> None:
             job_id, stages=stages, artifacts=artifacts, updated_at=_utcnow()
         )
 
+        # Brief pause before next Moonshot stage (org RPM limits are often low).
+        time.sleep(22)
+
         # 5) plan (Moonshot PRD + version split + finding/review linking)
         _mark_stage(
             stages,
@@ -261,6 +265,8 @@ def run_pipeline(job_id: str) -> None:
         store.update_job(
             job_id, stages=stages, artifacts=artifacts, updated_at=_utcnow()
         )
+
+        time.sleep(22)
 
         # 6) testcases (Moonshot + req/review link validation)
         _mark_stage(

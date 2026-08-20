@@ -1,6 +1,11 @@
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = import.meta.env.VITE_API_BASE || "http://127.0.0.1:8001";
 
-export async function createJob({ appUrl, goal, source = "live" }) {
+export async function createJob({
+  appUrl,
+  goal,
+  source = "sample",
+  importPath = null,
+}) {
   const response = await fetch(`${API_BASE}/api/jobs`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -8,6 +13,7 @@ export async function createJob({ appUrl, goal, source = "live" }) {
       app_url: appUrl,
       goal: goal || null,
       source,
+      import_path: source === "import" ? importPath : null,
     }),
   });
 

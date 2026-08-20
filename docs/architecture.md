@@ -32,3 +32,8 @@ Scaffold: FastAPI job API + fake multi-stage pipeline + React polling UI.
 - `validate.py`: deterministic review → finding → requirement → testcase chain
 - Docs: `docs/testcases-traceability.md`
 - Full pipeline stages are real end-to-end
+
+## Day 7
+- React UI: source selector (`sample`/`live`/`import`) + structured findings/PRD/testcases/traceability
+- Moonshot 429 backoff + inter-stage spacing for low RPM limits
+- README submission runbook + AI disclosure finalized for delivery

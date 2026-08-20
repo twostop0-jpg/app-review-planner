@@ -66,6 +66,8 @@ Deterministic full-chain check. See `docs/testcases-traceability.md`.
 - Invalid JSON → retry up to 2 repair attempts asking for JSON-only output
 - Hallucinated review IDs → removed by evidence validator (not shown as accepted findings)
 - Hallucinated finding/review links in PRD → requirement rejected
+- Moonshot HTTP 429 → sleep ~22s and retry once; pipeline also pauses between model stages
+- Persistent model JSON failure on plan/testcases → deterministic rule fallback (still evidence-linked)
 
 ## Anti-hallucination measures
 

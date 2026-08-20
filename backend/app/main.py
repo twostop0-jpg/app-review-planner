@@ -5,8 +5,11 @@ from app.api.routes import router
 
 app = FastAPI(
     title="App Review Planner",
-    description="Day1 scaffold: job orchestration UI wiring with a fake analysis pipeline.",
-    version="0.1.0",
+    description=(
+        "US App Store review analysis: collect → clean → findings → PRD → "
+        "test cases → traceability validation."
+    ),
+    version="0.7.0",
 )
 
 app.add_middleware(
