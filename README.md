@@ -13,8 +13,9 @@ Runnable tool for App Store review analysis → findings → PRD → test cases 
 ## Current status (Day 7 — submission ready)
 
 - Full pipeline: scope → collect → clean → analyze → plan → testcases → validate
-- UI shows stages plus structured findings / PRD / test cases / traceability
-- Data sources: `live` (US feeds), `sample` (cached offline), `import` (JSON/CSV)
+- **Python UI** at backend `/` (no Node required)
+- Optional React frontend under `frontend/` (needs Node)
+- Data sources: `live` / `sample` / `import`
 - Model stages use evidence validation + rule fallbacks when needed
 
 ## Configure environment
@@ -32,35 +33,33 @@ MOONSHOT_API_KEY=your_key_here
 
 Do not commit secrets.
 
-## Run backend
+## Run (recommended)
 
 ```bat
 cd /d d:\yuanxue\backend
-python -m venv .venv
 .\.venv\Scripts\activate.bat
-pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8001
 ```
+
+Then open the **product UI**:
+
+http://127.0.0.1:8001/
+
+Also available:
 
 - Health: http://127.0.0.1:8001/health
 - Swagger: http://127.0.0.1:8001/docs
 
 > On Windows, if port 8000 fails with WinError 10013, keep using **8001**.
 
-## Run frontend
+## Optional React frontend
+
+Only needed if you prefer the Vite React app:
 
 ```bat
 cd /d d:\yuanxue\frontend
 npm install
 npm run dev
-```
-
-Open the Vite URL (usually http://localhost:5173).
-
-Default API base is `http://127.0.0.1:8001`. Override with:
-
-```bat
-set VITE_API_BASE=http://127.0.0.1:8001
 ```
 
 ## Recommended demo (offline)

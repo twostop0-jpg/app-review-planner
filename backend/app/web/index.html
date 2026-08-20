@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>App Review Planner</title>
+    <link rel="stylesheet" href="/static/app.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="header">
+        <h1>App Review Planner</h1>
+        <p class="subtitle">
+          US App Store reviews → findings → PRD → test cases（Python UI，无需 Node）
+        </p>
+      </header>
+
+      <section class="panel">
+        <label class="label">
+          App Store URL
+          <input
+            id="appUrl"
+            class="input"
+            value="https://apps.apple.com/us/app/workout-for-women-home-gym/id839285684"
+          />
+        </label>
+
+        <label class="label">
+          Analysis goal（可选）
+          <input
+            id="goal"
+            class="input"
+            value="improve retention and billing clarity"
+          />
+        </label>
+
+        <label class="label">
+          Data source
+          <select id="source" class="input">
+            <option value="sample" selected>sample（离线缓存演示）</option>
+            <option value="live">live（US App Store）</option>
+            <option value="import">import（JSON/CSV）</option>
+          </select>
+        </label>
+
+        <label class="label" id="importWrap" hidden>
+          Import path（相对仓库根目录）
+          <input
+            id="importPath"
+            class="input"
+            value="data/imports/example_reviews.csv"
+          />
+        </label>
+
+        <button id="startBtn" class="button" type="button">Start</button>
+        <p id="jobMeta" class="meta"></p>
+        <p id="errorBox" class="error"></p>
+      </section>
+
+      <section class="panel">
+        <h2>Stages</h2>
+        <div id="stagesBox">
+          <p class="muted">还没有任务。点击 Start 开始。</p>
+        </div>
+      </section>
+
+      <section class="panel" id="findingsPanel">
+        <h2>Findings</h2>
+        <div id="findingsBox"><p class="muted">等待结果…</p></div>
+      </section>
+
+      <section class="panel" id="prdPanel">
+        <h2>PRD / Version plan</h2>
+        <div id="prdBox"><p class="muted">等待结果…</p></div>
+      </section>
+
+      <section class="panel" id="tcPanel">
+        <h2>Test cases</h2>
+        <div id="tcBox"><p class="muted">等待结果…</p></div>
+      </section>
+
+      <section class="panel" id="valPanel">
+        <h2>Traceability</h2>
+        <div id="valBox"><p class="muted">等待结果…</p></div>
+      </section>
+
+      <section class="panel">
+        <div class="result-head">
+          <h2>Raw artifacts</h2>
+          <button id="rawBtn" class="button ghost" type="button">Show JSON</button>
+        </div>
+        <pre id="rawBox" class="code" hidden>{}</pre>
+      </section>
+    </div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

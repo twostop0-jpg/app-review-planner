@@ -35,5 +35,6 @@ Scaffold: FastAPI job API + fake multi-stage pipeline + React polling UI.
 
 ## Day 7
 - React UI: source selector (`sample`/`live`/`import`) + structured findings/PRD/testcases/traceability
+- **Python-served product UI** at `GET /` (`backend/app/web/`) — no Node required
 - Moonshot 429 backoff + inter-stage spacing for low RPM limits
 - README submission runbook + AI disclosure finalized for delivery
