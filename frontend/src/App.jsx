@@ -5,8 +5,37 @@ import "./App.css";
 const DEFAULT_URL =
   "https://apps.apple.com/us/app/workout-for-women-home-gym/id839285684";
 
+const STAGE_NAME_ZH = {
+  scope: "确定分析范围",
+  collect: "采集评论",
+  clean: "清洗与结构化",
+  analyze: "分类与分析",
+  plan: "生成 PRD 与版本计划",
+  testcases: "生成测试用例",
+  validate: "校验追溯链",
+};
+
+const STATUS_ZH = {
+  pending: "等待中",
+  running: "进行中",
+  done: "完成",
+  error: "错误",
+  skipped: "已跳过",
+  queued: "排队中",
+  succeeded: "成功",
+  failed: "失败",
+};
+
 function statusClass(status) {
   return `status status-${status || "pending"}`;
+}
+
+function statusLabel(status) {
+  return STATUS_ZH[status] || status || "等待中";
+}
+
+function stageLabel(stage) {
+  return STAGE_NAME_ZH[stage.key] || stage.name || stage.key;
 }
 
 function Section({ title, children, empty }) {
@@ -14,7 +43,7 @@ function Section({ title, children, empty }) {
     return (
       <section className="panel">
         <h2>{title}</h2>
-        <p className="muted">Not available yet.</p>
+        <p className="muted">暂无数据。</p>
       </section>
     );
   }
@@ -28,10 +57,10 @@ function Section({ title, children, empty }) {
 
 function FindingsPanel({ findings }) {
   if (!findings?.length) {
-    return <Section title="Findings" empty />;
+    return <Section title="问题发现（Findings）" empty />;
   }
   return (
-    <Section title="Findings">
+    <Section title="问题发现（Findings）">
       <ul className="result-list">
         {findings.map((f) => (
           <li key={f.finding_id} className="result-item">
@@ -39,15 +68,15 @@ function FindingsPanel({ findings }) {
               <strong>
                 {f.finding_id}: {f.title}
               </strong>
-              <span className="pill">{f.severity}</span>
+              <span className="pill">严重度：{f.severity}</span>
             </div>
             <p className="result-body">{f.summary}</p>
             <p className="meta-line">
-              support={f.support_count} · confidence={f.confidence}
-              {f.assumption ? " · assumption" : ""} · origin={f.origin}
+              支持数={f.support_count} · 置信度={f.confidence}
+              {f.assumption ? " · 含假设" : ""}
             </p>
             <p className="meta-line">
-              reviews: {(f.evidence_review_ids || []).join(", ") || "—"}
+              关联评论：{(f.evidence_review_ids || []).join(", ") || "—"}
             </p>
           </li>
         ))}
@@ -58,20 +87,20 @@ function FindingsPanel({ findings }) {
 
 function PrdPanel({ prd }) {
   if (!prd?.requirements?.length && !prd?.title) {
-    return <Section title="PRD / Version plan" empty />;
+    return <Section title="PRD / 版本计划" empty />;
   }
   return (
-    <Section title="PRD / Version plan">
+    <Section title="PRD / 版本计划">
       {prd.title ? <h3 className="subhead">{prd.title}</h3> : null}
       {prd.background ? <p className="result-body">{prd.background}</p> : null}
       {prd.version_plan?.length ? (
         <div className="block">
-          <h4 className="tiny-head">Versions</h4>
+          <h4 className="tiny-head">版本拆分</h4>
           <ul className="simple-list">
             {prd.version_plan.map((v) => (
               <li key={v.version}>
-                <strong>{v.version}</strong>: {v.focus}
-                {v.req_ids?.length ? ` (${v.req_ids.join(", ")})` : ""}
+                <strong>{v.version}</strong>：{v.focus}
+                {v.req_ids?.length ? `（${v.req_ids.join(", ")}）` : ""}
               </li>
             ))}
           </ul>
@@ -89,12 +118,12 @@ function PrdPanel({ prd }) {
               </span>
             </div>
             <p className="result-body">{r.description}</p>
-            <p className="meta-line">problem: {r.user_problem || "—"}</p>
+            <p className="meta-line">用户问题：{r.user_problem || "—"}</p>
             <p className="meta-line">
-              findings: {(r.linked_finding_ids || []).join(", ") || "—"}
+              关联发现：{(r.linked_finding_ids || []).join(", ") || "—"}
             </p>
             <p className="meta-line">
-              reviews: {(r.linked_review_ids || []).join(", ") || "—"}
+              关联评论：{(r.linked_review_ids || []).join(", ") || "—"}
             </p>
           </li>
         ))}
@@ -105,10 +134,10 @@ function PrdPanel({ prd }) {
 
 function TestcasesPanel({ testcases }) {
   if (!testcases?.length) {
-    return <Section title="Test cases" empty />;
+    return <Section title="测试用例" empty />;
   }
   return (
-    <Section title="Test cases">
+    <Section title="测试用例">
       <ul className="result-list">
         {testcases.map((tc) => (
           <li key={tc.tc_id} className="result-item">
@@ -118,7 +147,7 @@ function TestcasesPanel({ testcases }) {
               </strong>
               <span className="pill">
                 {tc.priority}
-                {tc.origin === "rule" ? " · fallback" : ""}
+                {tc.origin === "rule" ? " · 规则兜底" : ""}
               </span>
             </div>
             <p className="result-body">{tc.objective}</p>
@@ -127,9 +156,9 @@ function TestcasesPanel({ testcases }) {
                 <li key={`${tc.tc_id}-s${i}`}>{step}</li>
               ))}
             </ol>
-            <p className="meta-line">expected: {tc.expected_result || "—"}</p>
+            <p className="meta-line">期望结果：{tc.expected_result || "—"}</p>
             <p className="meta-line">
-              reqs: {(tc.linked_req_ids || []).join(", ") || "—"} · reviews:{" "}
+              关联需求：{(tc.linked_req_ids || []).join(", ") || "—"} · 关联评论：
               {(tc.linked_review_ids || []).join(", ") || "—"}
             </p>
           </li>
@@ -141,22 +170,21 @@ function TestcasesPanel({ testcases }) {
 
 function ValidationPanel({ validation }) {
   if (!validation || typeof validation !== "object") {
-    return <Section title="Traceability" empty />;
+    return <Section title="追溯校验" empty />;
   }
   const summary = validation.summary || {};
   return (
-    <Section title="Traceability">
+    <Section title="追溯校验">
       <p>
-        Status:{" "}
+        校验状态：{" "}
         <span className={statusClass(validation.ok ? "succeeded" : "failed")}>
-          {validation.ok ? "OK" : "ISSUES"}
+          {validation.ok ? "通过" : "存在问题"}
         </span>
       </p>
       <p className="meta-line">
-        reviews={summary.reviews ?? "—"} · findings={summary.findings ?? "—"} ·
-        requirements={summary.requirements ?? "—"} · testcases=
-        {summary.testcases ?? "—"} · covered=
-        {summary.covered_requirements ?? "—"}
+        评论={summary.reviews ?? "—"} · 发现={summary.findings ?? "—"} · 需求=
+        {summary.requirements ?? "—"} · 用例={summary.testcases ?? "—"} ·
+        已覆盖需求={summary.covered_requirements ?? "—"}
       </p>
       {(validation.notes || []).map((n) => (
         <p key={n} className="result-body">
@@ -245,16 +273,15 @@ export default function App() {
   return (
     <div className="page">
       <header className="header">
-        <h1>App Review Planner</h1>
+        <h1>评论洞察规划器</h1>
         <p className="subtitle">
-          US App Store reviews → findings → PRD → test cases, with full
-          traceability.
+          美区 App Store 评论 → 问题发现 → PRD/版本计划 → 测试用例（全链路可追溯）
         </p>
       </header>
 
       <section className="panel">
         <label className="label">
-          App Store URL
+          App Store 链接
           <input
             className="input"
             value={appUrl}
@@ -264,31 +291,31 @@ export default function App() {
         </label>
 
         <label className="label">
-          Analysis goal (optional)
+          分析目标（可选）
           <input
             className="input"
             value={goal}
             onChange={(e) => setGoal(e.target.value)}
-            placeholder="e.g. subscription conversion, low-rating usability"
+            placeholder="例如：提升留存与计费清晰度"
           />
         </label>
 
         <label className="label">
-          Data source
+          数据来源
           <select
             className="input"
             value={source}
             onChange={(e) => setSource(e.target.value)}
           >
-            <option value="sample">sample (cached offline demo)</option>
-            <option value="live">live (US App Store feeds)</option>
-            <option value="import">import (JSON/CSV path)</option>
+            <option value="sample">样例数据（离线演示）</option>
+            <option value="live">实时采集（美区 App Store）</option>
+            <option value="import">导入文件（JSON/CSV）</option>
           </select>
         </label>
 
         {source === "import" ? (
           <label className="label">
-            Import path (repo-relative)
+            导入路径（相对仓库根目录）
             <input
               className="input"
               value={importPath}
@@ -299,23 +326,23 @@ export default function App() {
         ) : null}
 
         <button className="button" onClick={handleStart} disabled={loading || !appUrl}>
-          {loading ? "Running..." : "Start"}
+          {loading ? "分析中…" : "开始分析"}
         </button>
 
-        {jobId ? <p className="meta">Job ID: {jobId}</p> : null}
+        {jobId ? <p className="meta">任务 ID：{jobId}</p> : null}
         {error ? <p className="error">{error}</p> : null}
-        {job?.error ? <p className="error">Job error: {job.error}</p> : null}
+        {job?.error ? <p className="error">任务错误：{job.error}</p> : null}
       </section>
 
       <section className="panel">
-        <h2>Stages</h2>
+        <h2>执行阶段</h2>
         {!job ? (
-          <p className="muted">No job yet. Click Start to begin.</p>
+          <p className="muted">还没有任务。点击「开始分析」开始。</p>
         ) : (
           <>
             <p>
-              Overall status:{" "}
-              <span className={statusClass(job.status)}>{job.status}</span>
+              总体状态：{" "}
+              <span className={statusClass(job.status)}>{statusLabel(job.status)}</span>
             </p>
             {artifacts.collection_meta?.note ? (
               <p className="meta-line">{artifacts.collection_meta.note}</p>
@@ -324,8 +351,10 @@ export default function App() {
               {job.stages.map((stage) => (
                 <li key={stage.key} className="stage-item">
                   <div className="stage-head">
-                    <strong>{stage.name}</strong>
-                    <span className={statusClass(stage.status)}>{stage.status}</span>
+                    <strong>{stageLabel(stage)}</strong>
+                    <span className={statusClass(stage.status)}>
+                      {statusLabel(stage.status)}
+                    </span>
                   </div>
                   {stage.message ? <p className="stage-msg">{stage.message}</p> : null}
                 </li>
@@ -344,22 +373,19 @@ export default function App() {
 
           <section className="panel">
             <div className="result-head">
-              <h2>Raw artifacts</h2>
+              <h2>原始结果（JSON）</h2>
               <button
                 type="button"
                 className="button ghost"
                 onClick={() => setShowRaw((v) => !v)}
               >
-                {showRaw ? "Hide JSON" : "Show JSON"}
+                {showRaw ? "隐藏 JSON" : "显示 JSON"}
               </button>
             </div>
             {showRaw ? (
               <pre className="code">{JSON.stringify(artifacts, null, 2)}</pre>
             ) : (
-              <p className="muted">
-                Cleaning report, stats, and full payload are available in raw
-                JSON.
-              </p>
+              <p className="muted">清洗报告、统计信息等可在原始 JSON 中查看。</p>
             )}
           </section>
         </>

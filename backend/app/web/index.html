@@ -3,21 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>App Review Planner</title>
+    <title>评论洞察规划器</title>
     <link rel="stylesheet" href="/static/app.css" />
   </head>
   <body>
     <div class="page">
       <header class="header">
-        <h1>App Review Planner</h1>
+        <h1>评论洞察规划器</h1>
         <p class="subtitle">
-          US App Store reviews → findings → PRD → test cases（Python UI，无需 Node）
+          美区 App Store 评论 → 问题发现 → PRD/版本计划 → 测试用例（全链路可追溯）
         </p>
       </header>
 
       <section class="panel">
         <label class="label">
-          App Store URL
+          App Store 链接
           <input
             id="appUrl"
             class="input"
@@ -26,25 +26,26 @@
         </label>
 
         <label class="label">
-          Analysis goal（可选）
+          分析目标（可选）
           <input
             id="goal"
             class="input"
             value="improve retention and billing clarity"
+            placeholder="例如：提升留存与计费清晰度"
           />
         </label>
 
         <label class="label">
-          Data source
+          数据来源
           <select id="source" class="input">
-            <option value="sample" selected>sample（离线缓存演示）</option>
-            <option value="live">live（US App Store）</option>
-            <option value="import">import（JSON/CSV）</option>
+            <option value="sample" selected>样例数据（离线演示）</option>
+            <option value="live">实时采集（美区 App Store）</option>
+            <option value="import">导入文件（JSON/CSV）</option>
           </select>
         </label>
 
         <label class="label" id="importWrap" hidden>
-          Import path（相对仓库根目录）
+          导入路径（相对仓库根目录）
           <input
             id="importPath"
             class="input"
@@ -52,42 +53,42 @@
           />
         </label>
 
-        <button id="startBtn" class="button" type="button">Start</button>
+        <button id="startBtn" class="button" type="button">开始分析</button>
         <p id="jobMeta" class="meta"></p>
         <p id="errorBox" class="error"></p>
       </section>
 
       <section class="panel">
-        <h2>Stages</h2>
+        <h2>执行阶段</h2>
         <div id="stagesBox">
-          <p class="muted">还没有任务。点击 Start 开始。</p>
+          <p class="muted">还没有任务。点击「开始分析」开始。</p>
         </div>
       </section>
 
       <section class="panel" id="findingsPanel">
-        <h2>Findings</h2>
+        <h2>问题发现（Findings）</h2>
         <div id="findingsBox"><p class="muted">等待结果…</p></div>
       </section>
 
       <section class="panel" id="prdPanel">
-        <h2>PRD / Version plan</h2>
+        <h2>PRD / 版本计划</h2>
         <div id="prdBox"><p class="muted">等待结果…</p></div>
       </section>
 
       <section class="panel" id="tcPanel">
-        <h2>Test cases</h2>
+        <h2>测试用例</h2>
         <div id="tcBox"><p class="muted">等待结果…</p></div>
       </section>
 
       <section class="panel" id="valPanel">
-        <h2>Traceability</h2>
+        <h2>追溯校验</h2>
         <div id="valBox"><p class="muted">等待结果…</p></div>
       </section>
 
       <section class="panel">
         <div class="result-head">
-          <h2>Raw artifacts</h2>
-          <button id="rawBtn" class="button ghost" type="button">Show JSON</button>
+          <h2>原始结果（JSON）</h2>
+          <button id="rawBtn" class="button ghost" type="button">显示 JSON</button>
         </div>
         <pre id="rawBox" class="code" hidden>{}</pre>
       </section>
