@@ -37,5 +37,6 @@
 ## Failure handling
 
 - Empty findings → empty PRD with explicit insufficient-evidence notes (no model call)
-- Missing API key / Moonshot errors → job fails at plan stage
-- Invalid JSON → same repair retries as analyze via `MoonshotClient`
+- Missing API key / Moonshot errors → job fails at plan stage only if fallback cannot build requirements
+- Invalid JSON → repair retries, then deterministic rule-based PRD fallback (still linked to findings)
+- Hallucinated finding/review links → requirement rejected

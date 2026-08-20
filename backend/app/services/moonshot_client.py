@@ -114,23 +114,28 @@ class MoonshotClient:
         *,
         temperature: float | None = None,
         retries: int = 3,
+        repair_hint: str | None = None,
     ) -> dict[str, Any]:
         last_error: Exception | None = None
         previous_content = ""
+        default_hint = (
+            "Rules: escape all quotes inside strings; no trailing commas; "
+            "no markdown fences; keep strings short and plain; "
+            "return one compact JSON object only."
+        )
+        hint = repair_hint or default_hint
 
         for attempt in range(retries + 1):
             repair_messages = list(messages)
             if attempt > 0:
-                snippet = previous_content[:3500] if previous_content else ""
+                snippet = previous_content[:2800] if previous_content else ""
                 repair_messages = messages + [
                     {
                         "role": "user",
                         "content": (
                             "Your previous reply was invalid JSON.\n"
                             "Fix it and return ONLY one valid JSON object.\n"
-                            "Rules: escape all quotes inside strings; no trailing commas; "
-                            "no markdown fences; keep at most 6 findings; "
-                            "keep evidence_excerpts short and plain.\n\n"
+                            f"{hint}\n\n"
                             f"Previous invalid reply:\n{snippet}"
                         ),
                     }

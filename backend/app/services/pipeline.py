@@ -72,7 +72,7 @@ def _placeholder_later_artifacts() -> dict:
         "validation": {
             "ok": True,
             "notes": [
-                "Day4: collect+clean+analyze are real; PRD/testcases still placeholders."
+                "Day5: collect+clean+analyze+plan are real; testcases still placeholders."
             ],
         },
     }
@@ -94,7 +94,7 @@ def run_pipeline(job_id: str) -> None:
             **_placeholder_later_artifacts(),
             "meta": {
                 "app_url": job.app_url,
-                "pipeline": "day4-collect-clean-analyze",
+                "pipeline": "day5-collect-clean-analyze-plan",
             },
         }
 
@@ -241,8 +241,11 @@ def run_pipeline(job_id: str) -> None:
         artifacts["planning_notes"] = planned["planning_notes"]
         artifacts["planning_validation"] = planned["validation"]
         artifacts["planning_model"] = planned["model"]
+        if planned.get("error"):
+            artifacts["planning_error"] = planned["error"]
 
         req_count = len(planned["prd"].get("requirements") or [])
+        fallback_note = " [fallback]" if planned.get("error") else ""
         _mark_stage(
             stages,
             4,
@@ -250,6 +253,7 @@ def run_pipeline(job_id: str) -> None:
             message=(
                 f"Created PRD with {req_count} requirements "
                 f"(rejected {planned['validation'].get('rejected', 0)} unsupported)"
+                f"{fallback_note}"
             ),
             finished=True,
         )
