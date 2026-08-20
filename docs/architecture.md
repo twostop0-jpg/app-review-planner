@@ -14,3 +14,9 @@ Scaffold: FastAPI job API + fake multi-stage pipeline + React polling UI.
 - Pipeline `clean` is real; analyze/plan/testcases still placeholders
 - Preview endpoint: `POST /api/clean/preview`
 - Docs: `docs/cleaning.md`
+
+## Day 4
+- `moonshot_client.py` + `analyze.py` + `prompts/findings.py`
+- Analyze stage: deterministic stats + Moonshot findings + evidence validation
+- Docs: `docs/ai-design.md`
+- Requires `MOONSHOT_API_KEY` in `backend/.env`

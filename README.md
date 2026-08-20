@@ -8,31 +8,26 @@ Runnable tool for App Store review analysis → findings → PRD → test cases.
 
 - Backend: FastAPI (Python)
 - Frontend: React (Vite)
-- LLM: Moonshot (wired in later days)
+- LLM: Moonshot (Day4+ analyze stage)
 
-## Current status (Day 3)
+## Current status (Day 4)
 
 Available now:
 
 - Create analysis jobs via API
 - React page to start a job and poll status
 - Real US review collection (`live` / `sample` / `import`)
-- **Deterministic cleaning**: normalize, filter empty/low-signal, id+content dedupe, cleaning report
-- Later stages (analyze / PRD / testcases) still placeholders
-
-Moonshot-powered analysis, full PRD, and traceable test cases come in later days.
-
-## Prerequisites
-
-- Python 3.10+
-- Node.js 18+
+- Deterministic cleaning + cleaning report
+- **Moonshot evidence-grounded findings** (`artifacts.findings`)
+- PRD / testcases still placeholders
 
 ## Configure environment
 
 ```powershell
 cd backend
 copy .env.example .env
-# Later: set MOONSHOT_API_KEY in .env (not required for Day1 fake pipeline)
+# Required for Day4+ analyze stage:
+# set MOONSHOT_API_KEY=your_key_here
 ```
 
 ## Run backend
@@ -72,4 +67,5 @@ This repository is being built with assistance from an AI coding assistant (Curs
 
 - [`docs/architecture.md`](./docs/architecture.md)
 - [`docs/data-collection.md`](./docs/data-collection.md)
+- [`docs/cleaning.md`](./docs/cleaning.md)
 - [`docs/ai-design.md`](./docs/ai-design.md)
