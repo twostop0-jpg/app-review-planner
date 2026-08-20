@@ -10,14 +10,14 @@ Runnable tool for App Store review analysis → findings → PRD → test cases.
 - Frontend: React (Vite)
 - LLM: Moonshot (wired in later days)
 
-## Current status (Day 2)
+## Current status (Day 3)
 
 Available now:
 
 - Create analysis jobs via API
 - React page to start a job and poll status
-- **Real US review collection** (`live` / `sample` / `import`)
-- Lightweight cleaning placeholder (full cleaning in Day 3)
+- Real US review collection (`live` / `sample` / `import`)
+- **Deterministic cleaning**: normalize, filter empty/low-signal, id+content dedupe, cleaning report
 - Later stages (analyze / PRD / testcases) still placeholders
 
 Moonshot-powered analysis, full PRD, and traceable test cases come in later days.
