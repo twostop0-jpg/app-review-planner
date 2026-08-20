@@ -32,16 +32,17 @@ def build_deterministic_stats(reviews: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
-def _compact_reviews(reviews: list[dict[str, Any]], limit: int = 50) -> list[dict[str, Any]]:
+def _compact_reviews(reviews: list[dict[str, Any]], limit: int = 40) -> list[dict[str, Any]]:
     compact: list[dict[str, Any]] = []
     for review in reviews[:limit]:
-        content = str(review.get("content") or "")
+        content = str(review.get("content") or "").replace("\n", " ").strip()
+        title = str(review.get("title") or "").replace("\n", " ").strip()
         compact.append(
             {
                 "id": str(review.get("id")),
                 "rating": review.get("rating"),
-                "title": str(review.get("title") or "")[:120],
-                "content": content[:500],
+                "title": title[:100],
+                "content": content[:280],
                 "version": review.get("version"),
                 "date": review.get("date"),
             }
@@ -161,7 +162,7 @@ def analyze_reviews(
         },
     ]
 
-    raw = client.chat_json(messages, temperature=0.2, retries=2)
+    raw = client.chat_json(messages, temperature=0.1, retries=3)
     raw_findings = raw.get("findings") or []
     if not isinstance(raw_findings, list):
         raise MoonshotError("Model JSON missing findings array")
@@ -186,7 +187,7 @@ def analyze_reviews(
         "model": {
             "provider": "moonshot",
             "model": client.model,
-            "temperature": 0.2,
+            "temperature": 0.1,
         },
         "error": None,
     }

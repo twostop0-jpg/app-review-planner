@@ -7,7 +7,12 @@ Rules:
 4. Every finding MUST include evidence_review_ids that exist in the input.
 5. Include confidence (0-1), conflicts, and uncertainty_notes when evidence is weak or mixed.
 6. Distinguish assumptions: set assumption=true if evidence is thin.
-7. Return ONLY a JSON object with this shape:
+7. Return 3 to 6 findings maximum.
+8. Return ONLY a valid JSON object. No markdown.
+9. All string values must be JSON-safe: escape internal double quotes; avoid raw newlines in strings.
+10. evidence_excerpts must be short (<=120 chars), plain text, no nested quotes if possible.
+
+JSON shape:
 {
   "findings": [
     {
@@ -44,6 +49,7 @@ def build_findings_user_prompt(
             "Prefer findings that matter for the analysis_goal.",
             "If evidence is insufficient, say so in uncertainty_notes or analysis_notes.",
             "Do not fabricate reviews.",
+            "Output compact valid JSON only.",
         ],
     }
     return (
