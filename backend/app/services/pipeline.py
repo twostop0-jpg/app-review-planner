@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import time
 import uuid
 from datetime import datetime, timezone
 from threading import Thread
@@ -18,7 +17,9 @@ from app.services.collect import CollectError, collect_reviews
 from app.services import store
 from app.services.moonshot_client import MoonshotError
 from app.services.plan import plan_prd
+from app.services.testcases import generate_testcases
 from app.services.url_parser import InvalidAppUrlError, extract_app_id
+from app.services.validate import validate_traceability
 
 STAGE_DEFS: list[tuple[str, str]] = [
     ("scope", "Determine analysis scope"),
@@ -72,7 +73,7 @@ def _placeholder_later_artifacts() -> dict:
         "validation": {
             "ok": True,
             "notes": [
-                "Day5: collect+clean+analyze+plan are real; testcases still placeholders."
+                "Day6: full pipeline including testcases and traceability validation."
             ],
         },
     }
@@ -94,7 +95,7 @@ def run_pipeline(job_id: str) -> None:
             **_placeholder_later_artifacts(),
             "meta": {
                 "app_url": job.app_url,
-                "pipeline": "day5-collect-clean-analyze-plan",
+                "pipeline": "day6-full-traceability",
             },
         }
 
@@ -261,26 +262,73 @@ def run_pipeline(job_id: str) -> None:
             job_id, stages=stages, artifacts=artifacts, updated_at=_utcnow()
         )
 
-        # 6-7 remaining stages still placeholder (Day6)
-        for index in range(5, len(stages)):
-            stage = stages[index]
-            _mark_stage(
-                stages,
-                index,
-                status=StageStatus.running,
-                message=f"Running {stage.name.lower()} (placeholder)...",
-                started=True,
-            )
-            store.update_job(job_id, stages=stages, updated_at=_utcnow())
-            time.sleep(0.35)
-            _mark_stage(
-                stages,
-                index,
-                status=StageStatus.done,
-                message=f"Completed {stage.name.lower()} (placeholder)",
-                finished=True,
-            )
-            store.update_job(job_id, stages=stages, updated_at=_utcnow())
+        # 6) testcases (Moonshot + req/review link validation)
+        _mark_stage(
+            stages,
+            5,
+            status=StageStatus.running,
+            message="Generating test cases with Moonshot...",
+            started=True,
+        )
+        store.update_job(job_id, stages=stages, updated_at=_utcnow())
+
+        tested = generate_testcases(artifacts.get("prd"), goal=job.goal)
+        artifacts["testcases"] = tested["testcases"]
+        artifacts["testing_notes"] = tested["testing_notes"]
+        artifacts["testcase_validation"] = tested["validation"]
+        artifacts["testcase_model"] = tested["model"]
+        if tested.get("error"):
+            artifacts["testcase_error"] = tested["error"]
+
+        tc_count = len(tested["testcases"])
+        tc_fallback = " [fallback]" if tested.get("error") else ""
+        _mark_stage(
+            stages,
+            5,
+            status=StageStatus.done,
+            message=(
+                f"Generated {tc_count} test cases "
+                f"(rejected {tested['validation'].get('rejected', 0)} unsupported)"
+                f"{tc_fallback}"
+            ),
+            finished=True,
+        )
+        store.update_job(
+            job_id, stages=stages, artifacts=artifacts, updated_at=_utcnow()
+        )
+
+        # 7) validate (deterministic full-chain traceability)
+        _mark_stage(
+            stages,
+            6,
+            status=StageStatus.running,
+            message="Validating review → finding → requirement → testcase chain...",
+            started=True,
+        )
+        store.update_job(job_id, stages=stages, updated_at=_utcnow())
+
+        validation = validate_traceability(
+            reviews_cleaned=artifacts.get("reviews_cleaned"),
+            findings=artifacts.get("findings"),
+            prd=artifacts.get("prd"),
+            testcases=artifacts.get("testcases"),
+        )
+        artifacts["validation"] = validation
+
+        _mark_stage(
+            stages,
+            6,
+            status=StageStatus.done,
+            message=(
+                "Traceability OK"
+                if validation.get("ok")
+                else f"Traceability issues: {validation.get('summary', {}).get('issue_count', 0)}"
+            ),
+            finished=True,
+        )
+        store.update_job(
+            job_id, stages=stages, artifacts=artifacts, updated_at=_utcnow()
+        )
 
         store.update_job(
             job_id,

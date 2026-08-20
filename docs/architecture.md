@@ -26,3 +26,9 @@ Scaffold: FastAPI job API + fake multi-stage pipeline + React polling UI.
 - Plan stage: Moonshot PRD + version split (`vNext-1` / `vNext-2` / `Research`) + finding/review link validation
 - Docs: `docs/prd-planning.md`
 - testcases / validate remain placeholders until Day6
+
+## Day 6
+- `testcases.py` + `prompts/testcases.py` + `TestCase` schema
+- `validate.py`: deterministic review → finding → requirement → testcase chain
+- Docs: `docs/testcases-traceability.md`
+- Full pipeline stages are real end-to-end

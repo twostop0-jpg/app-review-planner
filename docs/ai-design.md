@@ -16,7 +16,8 @@
 | clean | rules / stats | deterministic normalize/dedupe |
 | **analyze** | **Moonshot + stats** | dynamic issue discovery and consolidation |
 | **plan** | **Moonshot + validation** | PRD + P0/P1/Research version split |
-| testcases / validate | placeholder (Day6) | later |
+| **testcases** | **Moonshot + validation** | Requirement-linked test design |
+| **validate** | **rules** | Full review→finding→req→testcase chain |
 
 ## Analyze stage design
 
@@ -41,10 +42,22 @@
 
 See also: `docs/prd-planning.md`.
 
+## Testcases stage design
+
+1. Compact requirements → Moonshot.
+2. Ask for JSON test cases with steps, expected results, and req/review links.
+3. Backend validates links against PRD requirements.
+4. On JSON failure → deterministic fallback (one case per requirement from acceptance criteria).
+
+## Validate stage design
+
+Deterministic full-chain check. See `docs/testcases-traceability.md`.
+
 ## Prompt location
 
 - `backend/app/prompts/findings.py`
 - `backend/app/prompts/prd.py`
+- `backend/app/prompts/testcases.py`
 
 ## Failure handling
 

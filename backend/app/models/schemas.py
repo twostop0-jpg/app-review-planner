@@ -70,6 +70,19 @@ class Requirement(BaseModel):
     origin: Literal["model", "rule"] = "model"
 
 
+class TestCase(BaseModel):
+    tc_id: str
+    title: str
+    objective: str = ""
+    steps: list[str] = Field(default_factory=list)
+    expected_result: str = ""
+    linked_req_ids: list[str] = Field(default_factory=list)
+    linked_review_ids: list[str] = Field(default_factory=list)
+    priority: Literal["P0", "P1", "P2"] = "P1"
+    assumption: bool = False
+    origin: Literal["model", "rule"] = "model"
+
+
 class StageStatus(str, Enum):
     pending = "pending"
     running = "running"

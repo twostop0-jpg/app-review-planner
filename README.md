@@ -8,9 +8,9 @@ Runnable tool for App Store review analysis → findings → PRD → test cases.
 
 - Backend: FastAPI (Python)
 - Frontend: React (Vite)
-- LLM: Moonshot (Day4+ analyze / Day5+ plan)
+- LLM: Moonshot (analyze / plan / testcases)
 
-## Current status (Day 5)
+## Current status (Day 6)
 
 Available now:
 
@@ -20,14 +20,15 @@ Available now:
 - Deterministic cleaning + cleaning report
 - **Moonshot evidence-grounded findings** (`artifacts.findings`)
 - **Moonshot PRD + version plan** (`artifacts.prd`) with finding/review links
-- testcases / validate still placeholders (Day6)
+- **Moonshot test cases** (`artifacts.testcases`) linked to requirements/reviews
+- **Traceability validation** (`artifacts.validation`) for the full chain
 
 ## Configure environment
 
 ```powershell
 cd backend
 copy .env.example .env
-# Required for Day4+ analyze/plan stages:
+# Required for Day4+ analyze/plan/testcases stages:
 # set MOONSHOT_API_KEY=your_key_here
 ```
 
@@ -70,3 +71,5 @@ This repository is being built with assistance from an AI coding assistant (Curs
 - [`docs/data-collection.md`](./docs/data-collection.md)
 - [`docs/cleaning.md`](./docs/cleaning.md)
 - [`docs/ai-design.md`](./docs/ai-design.md)
+- [`docs/prd-planning.md`](./docs/prd-planning.md)
+- [`docs/testcases-traceability.md`](./docs/testcases-traceability.md)
