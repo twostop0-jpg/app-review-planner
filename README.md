@@ -6,22 +6,21 @@ Runnable tool for App Store review analysis → findings → PRD → test cases 
 
 ## Stack
 
-- Backend: FastAPI (Python)
-- Frontend: React (Vite)
+- Backend / product UI: FastAPI (Python) — open `/` after starting the server (no Node required)
+- Optional UI: React (Vite) under `frontend/`
 - LLM: Moonshot (analyze / plan / testcases)
 
 ## Current status (Day 7 — submission ready)
 
 - Full pipeline: scope → collect → clean → analyze → plan → testcases → validate
-- **Python UI** at backend `/` (no Node required)
-- Optional React frontend under `frontend/` (needs Node)
+- Python-served product UI at backend `/`
 - Data sources: `live` / `sample` / `import`
 - Model stages use evidence validation + rule fallbacks when needed
 
 ## Configure environment
 
 ```bat
-cd /d d:\yuanxue\backend
+cd backend
 copy .env.example .env
 ```
 
@@ -31,13 +30,15 @@ Edit `backend/.env` and set:
 MOONSHOT_API_KEY=your_key_here
 ```
 
-Do not commit secrets.
+Do not commit secrets. Never put real API keys in the repository.
 
 ## Run (recommended)
 
 ```bat
-cd /d d:\yuanxue\backend
+cd backend
+python -m venv .venv
 .\.venv\Scripts\activate.bat
+pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8001
 ```
 
@@ -49,6 +50,7 @@ Also available:
 
 - Health: http://127.0.0.1:8001/health
 - Swagger: http://127.0.0.1:8001/docs
+- User guide: [`docs/user-guide.md`](./docs/user-guide.md)
 
 > On Windows, if port 8000 fails with WinError 10013, keep using **8001**.
 
@@ -57,7 +59,7 @@ Also available:
 Only needed if you prefer the Vite React app:
 
 ```bat
-cd /d d:\yuanxue\frontend
+cd frontend
 npm install
 npm run dev
 ```
@@ -109,7 +111,7 @@ This project was built with assistance from Cursor (AI coding assistant). Scaffo
 
 ## Docs
 
-- [`docs/user-guide.md`](./docs/user-guide.md) — 产品功能与使用教程（推荐先看）
+- [`docs/user-guide.md`](./docs/user-guide.md) — product guide (Chinese)
 - [`docs/architecture.md`](./docs/architecture.md)
 - [`docs/data-collection.md`](./docs/data-collection.md)
 - [`docs/cleaning.md`](./docs/cleaning.md)
